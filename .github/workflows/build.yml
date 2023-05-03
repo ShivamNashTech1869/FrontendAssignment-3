@@ -7,6 +7,7 @@ on:
       product_id:
         description: 'The Id searched product'
         required: true
+        default: "GL-D201APZU"
  push:
 
     branches:
