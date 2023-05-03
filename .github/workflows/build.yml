@@ -24,12 +24,12 @@ jobs:
 
     - name: Set Product ID
 
-      run: echo "PRODUCT_ID=B09RX285W1" >> $GITHUB_ENV
+      run: echo "searchProductID=B09RX285W1" >> $GITHUB_ENV
 
     - name: Run Selenium Tests
 
       run: |
         cd Validate\ Elements\ On\ An\ Amazon
-        mvn test -DPRODUCT_ID="${{ env.searchProductID }}"
+        mvn test -DsearchProductID="${{ env.searchProductID }}"
 
 
