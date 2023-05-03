@@ -3,7 +3,10 @@ name: Run Code
 on:
 
  workflow_dispatch:
- 
+     inputs:
+      product_id:
+        description: 'The Id searched product'
+        required: true
  push:
 
     branches:
@@ -24,7 +27,7 @@ jobs:
 
     - name: Set Product ID
 
-      run: echo "searchProductID=B09RX285W1" >> $GITHUB_ENV
+      run: echo "searchProductID=${{ inputs.product_id }}" >> $GITHUB_ENV
 
     - name: Run Selenium Tests
 
