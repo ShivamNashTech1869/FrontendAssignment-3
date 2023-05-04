@@ -1,11 +1,14 @@
 package pages;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Time;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,15 +31,13 @@ public class SearchPage {
     public WebElement descriptionOfProduct;
     @FindBy(css = "div[id='anonCarousel3']")
     public WebElement offer;
-    By ratingSelector = By.cssSelector("span[id='acrPopover']");
-    
     WebDriver driver;
     Random random;
     WebDriverWait wait;
     Logger log;
-    File src;
     File source;
-   
+    By ratingSelector = By.cssSelector("span[id='acrPopover']");
+
     public SearchPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
@@ -51,25 +52,24 @@ public class SearchPage {
         return !preUrl.equals(driver.getCurrentUrl());
     }
 
-    public boolean searchByProductID() {
-        wait.until(ExpectedConditions.visibilityOf(searchBox));
-        String preUrl = driver.getCurrentUrl();
-        searchBox.click();
-        String productId = System.getenv("searchProductID");
-        searchBox.sendKeys(productId);
-        searchButton.click();
-        return (verifyNewPageLoading(preUrl));
-    }
-
+   public boolean searchByProductID() {
+       wait.until(ExpectedConditions.visibilityOf(searchBox));
+       String preUrl = driver.getCurrentUrl();
+       searchBox.click();
+       String productId = System.getenv("searchProductID");
+       searchBox.sendKeys(productId);
+       searchButton.click();
+       return (verifyNewPageLoading(preUrl));
+   }
+    
     public boolean openProductPage() {
         wait.until(ExpectedConditions.visibilityOf(firstSearchResult));
         String preUrl = driver.getCurrentUrl();
 
-        ((JavascriptExecutor)driver).executeScript("arguments[0].click();",firstSearchResult);
-        ArrayList<String> tabs = new ArrayList<String> (driver.getWindowHandles());
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", firstSearchResult);
+        ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
         driver.switchTo().window(tabs.get(1));
         return (verifyNewPageLoading(preUrl));
-
     }
 
     public boolean verifyByNowButton() throws IOException {
@@ -102,7 +102,7 @@ public class SearchPage {
             return false;
         }
     }
-    
+
     public boolean printDescription() throws IOException {
         try {
             wait.until(ExpectedConditions.visibilityOf(descriptionOfProduct));
