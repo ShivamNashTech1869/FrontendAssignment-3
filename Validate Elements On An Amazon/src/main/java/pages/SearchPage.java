@@ -20,7 +20,7 @@ public class SearchPage {
     public WebElement searchButton;
     @FindBy(id = "nav-logo-sprites")
     public WebElement logo;
-    @FindBy(css = "a[class=\"a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal\"]")
+    @FindBy(css = "a[class='a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")
     public WebElement firstSearchResult;
     @FindBy(css = "input[title='Buy Now']")
     public WebElement byNowButton;
@@ -28,17 +28,22 @@ public class SearchPage {
     public WebElement descriptionOfProduct;
     @FindBy(css = "div[id='anonCarousel3']")
     public WebElement offer;
+    By ratingSelector = By.cssSelector("span[id='acrPopover']");
+    
     WebDriver driver;
     Random random;
     WebDriverWait wait;
     Logger log;
-    By ratingSelector = By.cssSelector("span[id='acrPopover']");
+    File src;
+    File source;
+   
     public SearchPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
         random = new Random();
         wait = new WebDriverWait(driver, Duration.ofSeconds(40));
         log = Logger.getLogger(getClass().getName());
+        this.source = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
     }
 
     public boolean verifyNewPageLoading(String preUrl) {
@@ -67,45 +72,53 @@ public class SearchPage {
 
     }
 
-    public boolean verifyByNowButton() {
-        wait.until(ExpectedConditions.visibilityOf(byNowButton));
-        if (byNowButton.isDisplayed()) {
+    public boolean verifyByNowButton() throws IOException {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(byNowButton));
             log.info("ByNow button is visible");
             return true;
-        } else {
-            log.info("ByNow button is Not visible");
+        } catch (NoSuchElementException e) {
+            log.info("ByNow button is Not visible for this product");
+            FileUtils.copyFile(source, new File("screenshot(NoRatingOption).png"));
             return false;
         }
     }
 
-    public boolean verifyRating() {
-        WebElement rating = driver.findElements(ratingSelector).get(0);
-        String ratingTitle = rating.getAttribute("title").trim();
-        log.info(ratingTitle);
-        float ratingResult = Float.parseFloat(ratingTitle.substring(0,3));
-        if (ratingResult >= 4.0) {
-            log.info("Rating is :"+ratingResult);
+    public boolean verifyRating() throws IOException {
+        try {
+            WebElement rating = driver.findElements(ratingSelector).get(0);
+            String ratingTitle = rating.getAttribute("title").trim();
+            log.info(ratingTitle);
+            float ratingResult = Float.parseFloat(ratingTitle.substring(0, 3));
+            if (ratingResult >= 4.0) {
+                log.info("Rating is :" + ratingResult);
+            } else {
+                log.info("Rating is below 4");
+            }
             return true;
-        }
-        else{
-            log.info("Rating is below 4");
+        } catch (NoSuchElementException e) {
+            log.info("No Rating option is found for this Item");
+            FileUtils.copyFile(source, new File("screenshot(NoRatingOption).png"));
             return false;
         }
     }
-    public boolean printDescription(){
+    
+    public boolean printDescription() throws IOException {
         try {
             wait.until(ExpectedConditions.visibilityOf(descriptionOfProduct));
             log.info("offers is : " + descriptionOfProduct.getText());
             return true;
-        }catch(TimeoutException e){
-           try {
-               wait.until(ExpectedConditions.visibilityOf(offer));
-               log.info("offers is : " + offer.getText());
-               return true;
-           }catch (TimeoutException e1){
-               log.info("No offer for this product");
-               return false;
-           }
+        } catch (TimeoutException e) {
+            try {
+                wait.until(ExpectedConditions.visibilityOf(offer));
+                log.info("offers is : " + offer.getText());
+                return true;
+            } catch (TimeoutException e1) {
+                log.info("No offer for this product");
+                FileUtils.copyFile(source, new File("screenshot(NoOffer).png"));
+                return false;
+            }
         }
+    }
     }
 }
